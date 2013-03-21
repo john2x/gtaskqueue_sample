@@ -36,7 +36,7 @@ import gflags as flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string(
         'service_version',
-        'v1beta1',
+        'v1beta2',
         'Google taskqueue api version.')
 flags.DEFINE_string(
         'api_host',
