@@ -222,8 +222,7 @@ class TaskQueuePuller(object):
                 project=FLAGS.project_name,
                 taskqueue=FLAGS.taskqueue_name,
                 leaseSecs=FLAGS.lease_secs,
-                numTasks=tasks_to_fetch,
-                body={})
+                numTasks=tasks_to_fetch)
             result = lease_req.execute()
             return result
         except HttpError, http_error:
