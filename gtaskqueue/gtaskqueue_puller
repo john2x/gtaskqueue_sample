@@ -80,6 +80,10 @@ flags.DEFINE_float(
         'sleep_before_next_poll_secs',
         2,
         'sleep interval before next poll')
+flags.DEFINE_string(
+        'tag',
+        None,
+        'only retrieve tasks with tag')
 
 
 class TaskQueuePuller(object):
@@ -218,11 +222,19 @@ class TaskQueuePuller(object):
         """
         try:
             tasks_to_fetch = self._num_tasks_to_lease()
-            lease_req = self.task_api.tasks().lease(
-                project=FLAGS.project_name,
-                taskqueue=FLAGS.taskqueue_name,
-                leaseSecs=FLAGS.lease_secs,
-                numTasks=tasks_to_fetch)
+            if FLAGS.tag:
+                lease_req = self.task_api.tasks().lease(
+                    project=FLAGS.project_name,
+                    taskqueue=FLAGS.taskqueue_name,
+                    leaseSecs=FLAGS.lease_secs,
+                    numTasks=tasks_to_fetch,
+                    groupByTag=True,tag=FLAGS.tag)
+            else:
+                lease_req = self.task_api.tasks().lease(
+                    project=FLAGS.project_name,
+                    taskqueue=FLAGS.taskqueue_name,
+                    leaseSecs=FLAGS.lease_secs,
+                    numTasks=tasks_to_fetch)
             result = lease_req.execute()
             return result
         except HttpError, http_error:
