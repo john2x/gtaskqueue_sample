@@ -26,7 +26,7 @@ getask, listtasks, deletetask, getqueue.
 Example usage:
   i. To lease a task
   gtaskqueue leasetask --taskqueue_name=<your queue_name>
-  -lease_secs=30  --project_name=<your appengine app_name>
+  --lease_secs=30  --project_name=<your appengine app_name>
   ii. To get stats on a queue
   gtaskqueue getqueue --taskqueue_name=<your queue_name>
   --project_name=<your appengine app_name> --get_stats
@@ -35,9 +35,9 @@ Example usage:
 by your app,perform the task and the post the output back to your app.
 Example Usage:
   gtaskqueue_puller --taskqueue_name=<your queue_name>
-  -lease_secs=30  --project_name=<your appengine app_name>
+  --lease_secs=30  --project_name=<your appengine app_name>
   --executable_binary=”cat” --output_url=<url location if you want to pos the data
-  back(optional)>
+  back(optional)> --tag=<filter tasks retrieved by tag(optional)>
 
 Third Party Libraries
 =====================
