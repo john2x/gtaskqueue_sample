@@ -269,11 +269,14 @@ class ClientTask(object):
                 if self._post_output():
                     self._delete_task_from_queue(task_api)
                 self._cleanup()
+            elif task_status > 0:
+                logger.error('Subprocess returned unexpected value %s' % str(task_status))
+                status = True
             elif self._has_timedout():
                 status = True
                 self._kill_subprocess()
         except OSError:
-            logger.error('Error during polling status of task %s, Error ' 
+            logger.error('Error during polling status of task %s, Error '
                          'details %s' % (self.task_id, str(OSError)))
         return status
 
