@@ -41,6 +41,7 @@ from gtaskqueue.taskqueue_logger import logger
 from gtaskqueue.taskqueue_logger import set_logger
 from google.apputils import app
 import gflags as flags
+import requests
 
 FLAGS = flags.FLAGS
 flags.DEFINE_string(
@@ -84,6 +85,15 @@ flags.DEFINE_string(
         'tag',
         None,
         'only retrieve tasks with tag')
+flags.DEFINE_string(
+        'prepoll_url',
+        None,
+        'URL to call on each poll')
+flags.DEFINE_integer(
+        'prepoll_interval_secs',
+        180,
+        'interval to call prepoll_url')
+
 
 
 class TaskQueuePuller(object):
@@ -351,7 +361,11 @@ def main(argv):
     set_logger()
     # Instantiate puller
     puller = TaskQueuePuller()
+    prepoll_time = time.time()
     while True:
+        if FLAGS.prepoll_url and time.time() - prepoll_time > FLAGS.prepoll_interval_secs:
+            prepoll_time = time.time()
+            resp = requests.get(FLAGS.prepoll_url)
         puller.lease_tasks()
         puller.poll_tasks()
 
