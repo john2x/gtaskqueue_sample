@@ -29,6 +29,7 @@ from oauth2client.file import Storage
 from oauth2client.client import OAuth2WebServerFlow
 from oauth2client.tools import run
 from gtaskqueue.taskqueue_logger import logger
+from utils import get_env_variable
 
 from google.apputils import app
 import gflags as flags
@@ -67,8 +68,8 @@ flags.DEFINE_string(
 # The client_id client_secret are copied from the Identity tab on
 # the Google APIs Console <http://code.google.com/apis/console>
 FLOW = OAuth2WebServerFlow(
-    client_id='157776985798.apps.googleusercontent.com',
-    client_secret='tlpVCmaS6yLjxnnPu0ARIhNw',
+    client_id=get_env_variable('GOOGLE_CLIENT_ID'),
+    client_secret=get_env_variable('GOOGLE_CLIENT_SECRET'),
     scope='https://www.googleapis.com/auth/taskqueue',
     user_agent='taskqueue-cmdline-sample/1.0')
 
