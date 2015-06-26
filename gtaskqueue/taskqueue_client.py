@@ -91,7 +91,6 @@ class TaskQueueClient:
             # Setting FLAGS.auth_local_webserver to false since we can run our
             # tool on Virtual Machines and we do not want to run the webserver
             # on VMs.
-            FLAGS.auth_local_webserver = False
             storage = Storage(FLAGS.credentials_file)
             credentials = storage.get()
             if credentials is None or credentials.invalid == True:
