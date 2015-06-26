@@ -30,7 +30,7 @@ except ImportError:
 
 PACKAGE_NAME = 'google-taskqueue-client'
 INSTALL_REQUIRES = ['google-apputils',
-                    'google-api-python-client',
+                    'google-api-python-client==1.1',
                     'httplib2',
                     'oauth2',
                     'python-gflags']
