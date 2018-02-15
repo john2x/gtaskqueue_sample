@@ -26,6 +26,7 @@ from gtaskqueue.taskqueue_cmd_base import GoogleTaskCommand
 
 from google.apputils import app
 from google.apputils import appcommands
+from utils import build_cloudtasks_project_name
 import gflags as flags
 
 FLAGS = flags.FLAGS
@@ -46,9 +47,9 @@ class GetTaskCommand(GoogleTaskCommand):
         Returns:
             The properties of the task.
         """
-        return task_api.get(project=flag_values.project_name,
-                            taskqueue=flag_values.taskqueue_name,
-                            task=flag_values.task_name)
+        name = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
+                                             task_id=flag_values.task_name)
+        return task_api.get(name=name)
 
 
 class LeaseTaskCommand(GoogleTaskCommand):
@@ -83,24 +84,28 @@ class LeaseTaskCommand(GoogleTaskCommand):
         if not flag_values.lease_secs:
             raise app.UsageError('lease_secs must be specified')
 
-        return task_api.lease(project=flag_values.project_name,
-                              taskqueue=flag_values.taskqueue_name,
-                              leaseSecs=flag_values.lease_secs,
-                              numTasks=flag_values.num_tasks)
+        parent = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
+        body = {
+            'maxTasks': flag_values.num_tasks,
+            'leaseDuration': flag_values.lease_secs,
+            'responseView': 'FULL',
+        }
+        return task_api.lease(parent=parent,
+                              body=body)
 
     def print_result(self, result):
         """Override to optionally strip the payload since it can be long."""
-        if result.get('items'):
+        if result.get('tasks'):
             items = []
-            for task in result.get('items'):
-                payloadlen = len(task['payloadBase64'])
+            for task in result.get('tasks'):
+                payloadlen = len(task.get('pullMessage', {}).get('payload', ''))
                 if payloadlen > FLAGS.payload_size_to_display:
                     extra = payloadlen - FLAGS.payload_size_to_display
-                    task['payloadBase64'] = ('%s(%d more bytes)' %
-                        (task['payloadBase64'][:FLAGS.payload_size_to_display],
+                    task['payload'] = ('%s(%d more bytes)' %
+                        (task['payload'][:FLAGS.payload_size_to_display],
                          extra))
                 items.append(task)
-            result['items'] = items
+            result['tasks'] = items
         GoogleTaskCommand.print_result(self, result)
 
 
@@ -119,9 +124,9 @@ class DeleteTaskCommand(GoogleTaskCommand):
         Returns:
             Whether the delete was successful.
         """
-        return task_api.delete(project=flag_values.project_name,
-                               taskqueue=flag_values.taskqueue_name,
-                               task=flag_values.task_name)
+        name = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
+                                             task_id=flag_values.task_name)
+        return task_api.delete(name=name)
 
 
 class ListTasksCommand(GoogleTaskCommand):
@@ -141,8 +146,9 @@ class ListTasksCommand(GoogleTaskCommand):
         Returns:
           A list of pending tasks in the queue.
         """
-        return task_api.list(project=flag_values.project_name,
-                             taskqueue=flag_values.taskqueue_name)
+        parent = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
+        return task_api.list(parent=parent,
+                             responseView='FULL')
 
 
 class ClearTaskQueueCommand(GoogleTaskCommand):
@@ -187,19 +193,19 @@ class ClearTaskQueueCommand(GoogleTaskCommand):
         Returns:
             The number of tasks deleted.
         """
-        list_request = tasks.list(project=self._flag_values.project_name,
-                                  taskqueue=self._flag_values.taskqueue_name)
+        parent = build_cloudtasks_project_name(self._flag_values.project_name, self._flag_values.project_location, self._flag_values.taskqueue_name)
+        list_request = tasks.list(parent=parent,
+                                  responseView='BASIC',
+                                  pageSize=100)
         result = list_request.execute()
         n_deleted = 0
         if result:
-          for task in result.get('items', []):
+          for task in result.get('tasks', []):
             if self._to_delete > 0:
               self._to_delete -= 1
               n_deleted += 1
-              print 'Deleting: %s' % task['id']
-              tasks.delete(project=self._flag_values.project_name,
-                           taskqueue=self._flag_values.taskqueue_name,
-                           task=task['id']).execute()
+              print 'Deleting: %s' % task['name']
+              tasks.delete(name=task['name']).execute()
         return n_deleted
 
 

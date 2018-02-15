@@ -24,6 +24,7 @@ __version__ = '0.0.1'
 from gtaskqueue.taskqueue_cmd_base import GoogleTaskQueueCommand
 
 from google.apputils import appcommands
+from utils import build_cloudtasks_project_name
 import gflags as flags
 
 FLAGS = flags.FLAGS
@@ -48,9 +49,10 @@ class GetTaskQueueCommand(GoogleTaskQueueCommand):
         Returns:
             The properties of the taskqueue.
         """
-        return taskqueue_api.get(project=flag_values.project_name,
-                                 taskqueue=flag_values.taskqueue_name,
-                                 getStats=flag_values.get_stats)
+        name = build_cloudtasks_project_name(flag_values.project_name,
+                                             flag_values.project_location,
+                                             flag_values.taskqueue_name)
+        return taskqueue_api.get(name=name)
 
 
 def add_commands():

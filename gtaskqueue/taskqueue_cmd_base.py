@@ -42,11 +42,11 @@ FLAGS = flags.FLAGS
 
 flags.DEFINE_string(
         'service_version',
-        'v1beta1',
+        'v2beta2',
         'Google taskqueue api version.')
 flags.DEFINE_string(
         'api_host',
-        'https://www.googleapis.com/',
+        'https://cloudtasks.googleapis.com/',
         'API host name')
 flags.DEFINE_string(
         'project_name',
@@ -179,7 +179,7 @@ class GoogleTaskQueueCommandBase(appcommands.Cmd):
                 credentials = run(FLOW, storage)
             http = credentials.authorize(self._dump_request_wrapper(
                     httplib2.Http()))
-            api = build('taskqueue',
+            api = build('cloudtasks',
                        FLAGS.service_version,
                        http=http,
                        discoveryServiceUrl=discovery_uri)
@@ -238,7 +238,7 @@ class GoogleTaskQueueCommand(GoogleTaskQueueCommandBase):
         Returns:
             The result of running the command.
         """
-        taskqueue_request = self.build_request(api.taskqueues(), flag_values)
+        taskqueue_request = self.build_request(api.projects().locations().queues(), flag_values)
         return taskqueue_request.execute()
 
 
@@ -271,5 +271,5 @@ class GoogleTaskCommand(GoogleTaskQueueCommandBase):
         Returns:
             The result of running the command.
         """
-        task_request = self.build_request(api.tasks(), flag_values)
+        task_request = self.build_request(api.projects().locations().queues().tasks(), flag_values)
         return task_request.execute()

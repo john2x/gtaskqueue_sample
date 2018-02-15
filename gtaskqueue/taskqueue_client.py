@@ -37,11 +37,11 @@ import gflags as flags
 FLAGS = flags.FLAGS
 flags.DEFINE_string(
         'service_version',
-        'v1beta2',
+        'v2beta2',
         'Google taskqueue api version.')
 flags.DEFINE_string(
         'api_host',
-        'https://www.googleapis.com/',
+        'https://cloudtasks.googleapis.com/',
         'API host name')
 flags.DEFINE_bool(
         'use_developer_key',
@@ -70,7 +70,7 @@ flags.DEFINE_string(
 FLOW = OAuth2WebServerFlow(
     client_id=get_env_variable('GOOGLE_CLIENT_ID'),
     client_secret=get_env_variable('GOOGLE_CLIENT_SECRET'),
-    scope='https://www.googleapis.com/auth/taskqueue',
+    scope='https://www.googleapis.com/auth/cloud-tasks',
     user_agent='taskqueue-cmdline-sample/1.0')
 
 
@@ -97,7 +97,7 @@ class TaskQueueClient:
                 credentials = run(FLOW, storage)
             http = credentials.authorize(self._dump_request_wrapper(
                     httplib2.Http()))
-            self.task_api = build('taskqueue',
+            self.task_api = build('cloudtasks',
                                   FLAGS.service_version,
                                   http=http,
                                   discoveryServiceUrl=discovery_uri)

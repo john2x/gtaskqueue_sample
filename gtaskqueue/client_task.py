@@ -25,6 +25,7 @@ import time
 import urllib2
 from apiclient.errors import HttpError
 from gtaskqueue.taskqueue_logger import logger
+from utils import build_cloudtasks_project_name
 import gflags as flags
 
 
@@ -110,9 +111,11 @@ class ClientTask(object):
             False if anything goes wrong in initialization of task execution.
         """
         try:
-            self.task_id = self._task.get('id')
+            self.task_name = self._task.get('name')
+            self.task_id = self.task_name.rsplit('/', 1)[1]
+            self.task_schedule_time = self._task.get('scheduleTime')
             self._payload = self._decode_base64_payload(
-                self._task.get('payloadBase64'))
+                self._task.get('pullMessage', {}).get('payload'))
             self._payload_file = self._dump_payload_to_file()
             self._start_task_execution()
             return True
@@ -308,10 +311,12 @@ class ClientTask(object):
         """
 
         try:
-            delete_request = task_api.tasks().delete(
-                project=FLAGS.project_name,
-                taskqueue=FLAGS.taskqueue_name,
-                task=self.task_id)
+            name = build_cloudtasks_project_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name,
+                                                 task_id=self.task_id)
+            body = {'scheduleTime': self.task_schedule_time}
+            delete_request = task_api.projects().locations().queues().tasks().acknowledge(
+                name=FLAGS.project_name,
+                body=body)
             delete_request.execute()
         except HttpError, http_error:
             logger.error('Error deleting task %s from taskqueue.'
