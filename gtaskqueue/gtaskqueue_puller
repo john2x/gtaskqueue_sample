@@ -39,8 +39,8 @@ from gtaskqueue.client_task import ClientTask
 from gtaskqueue.taskqueue_client import TaskQueueClient
 from gtaskqueue.taskqueue_logger import logger
 from gtaskqueue.taskqueue_logger import set_logger
+from gtaskqueue.utils import build_cloudtasks_queue_name
 from google.apputils import app
-from utils import build_cloudtasks_project_name
 import gflags as flags
 import requests
 
@@ -55,7 +55,7 @@ flags.DEFINE_string(
         'taskqueue to which client wants to connect to')
 flags.DEFINE_string(
         'project_location',
-        'us-central',
+        'us-central1',
         'The location of the Cloud Tasks project')
 flags.DEFINE_integer(
         'lease_secs',
@@ -237,7 +237,7 @@ class TaskQueuePuller(object):
         """
         try:
             tasks_to_fetch = self._num_tasks_to_lease()
-            parent = build_cloudtasks_project_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name)
+            parent = build_cloudtasks_queue_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name)
             body = {
                 'maxTasks': tasks_to_fetch,
                 'leaseDuration': FLAGS.lease_secs,

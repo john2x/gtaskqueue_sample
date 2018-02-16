@@ -25,7 +25,7 @@ import time
 import urllib2
 from apiclient.errors import HttpError
 from gtaskqueue.taskqueue_logger import logger
-from utils import build_cloudtasks_project_name
+from utils import build_cloudtasks_task_name
 import gflags as flags
 
 
@@ -311,8 +311,8 @@ class ClientTask(object):
         """
 
         try:
-            name = build_cloudtasks_project_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name,
-                                                 task_id=self.task_id)
+            name = build_cloudtasks_task_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name,
+                                              task_id=self.task_id)
             body = {'scheduleTime': self.task_schedule_time}
             delete_request = task_api.projects().locations().queues().tasks().acknowledge(
                 name=FLAGS.project_name,

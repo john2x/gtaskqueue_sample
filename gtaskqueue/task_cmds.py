@@ -26,7 +26,7 @@ from gtaskqueue.taskqueue_cmd_base import GoogleTaskCommand
 
 from google.apputils import app
 from google.apputils import appcommands
-from utils import build_cloudtasks_project_name
+from utils import build_cloudtasks_queue_name, build_cloudtasks_task_name
 import gflags as flags
 
 FLAGS = flags.FLAGS
@@ -47,8 +47,8 @@ class GetTaskCommand(GoogleTaskCommand):
         Returns:
             The properties of the task.
         """
-        name = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
-                                             task_id=flag_values.task_name)
+        name = build_cloudtasks_task_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
+                                          task_id=flag_values.task_name)
         return task_api.get(name=name)
 
 
@@ -84,7 +84,7 @@ class LeaseTaskCommand(GoogleTaskCommand):
         if not flag_values.lease_secs:
             raise app.UsageError('lease_secs must be specified')
 
-        parent = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
+        parent = build_cloudtasks_task_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
         body = {
             'maxTasks': flag_values.num_tasks,
             'leaseDuration': flag_values.lease_secs,
@@ -124,8 +124,8 @@ class DeleteTaskCommand(GoogleTaskCommand):
         Returns:
             Whether the delete was successful.
         """
-        name = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
-                                             task_id=flag_values.task_name)
+        name = build_cloudtasks_task_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name,
+                                          task_id=flag_values.task_name)
         return task_api.delete(name=name)
 
 
@@ -146,7 +146,7 @@ class ListTasksCommand(GoogleTaskCommand):
         Returns:
           A list of pending tasks in the queue.
         """
-        parent = build_cloudtasks_project_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
+        parent = build_cloudtasks_queue_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
         return task_api.list(parent=parent,
                              responseView='FULL')
 
@@ -193,7 +193,7 @@ class ClearTaskQueueCommand(GoogleTaskCommand):
         Returns:
             The number of tasks deleted.
         """
-        parent = build_cloudtasks_project_name(self._flag_values.project_name, self._flag_values.project_location, self._flag_values.taskqueue_name)
+        parent = build_cloudtasks_task_name(self._flag_values.project_name, self._flag_values.project_location, self._flag_values.taskqueue_name)
         list_request = tasks.list(parent=parent,
                                   responseView='BASIC',
                                   pageSize=100)

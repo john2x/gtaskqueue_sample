@@ -16,7 +16,7 @@
 
 """Setup script for the Google TaskQueue API command-line tool."""
 
-__version__ = '1.0.2'
+__version__ = '2.0.0'
 
 
 import sys
@@ -30,9 +30,10 @@ except ImportError:
 
 PACKAGE_NAME = 'google-taskqueue-client'
 INSTALL_REQUIRES = ['google-apputils',
-                    'google-api-python-client==1.1',
+                    'google-api-python-client==1.6.5',
                     'httplib2',
                     'oauth2',
+                    'requests',
                     'python-gflags']
 setup(name=PACKAGE_NAME,
       version=__version__,

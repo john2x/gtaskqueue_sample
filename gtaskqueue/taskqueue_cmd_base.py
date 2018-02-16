@@ -23,15 +23,15 @@ __version__ = '0.0.1'
 import os
 import sys
 import urlparse
+import json
 
 
 from apiclient.discovery import build
 from apiclient.errors import HttpError
 import httplib2
-from oauth2client.anyjson import simplejson as json
 from oauth2client.file import Storage
 from oauth2client.client import OAuth2WebServerFlow
-from oauth2client.tools import run
+from old_run import run
 
 from google.apputils import app
 from google.apputils import appcommands
@@ -52,6 +52,10 @@ flags.DEFINE_string(
         'project_name',
         'default',
         'The name of the Taskqueue API project.')
+flags.DEFINE_string(
+        'project_location',
+        'us-central1',
+        'The location of the Cloud Tasks project')
 flags.DEFINE_bool(
         'use_developer_key',
         False,
@@ -68,6 +72,14 @@ flags.DEFINE_string(
         'credentials_file',
         'taskqueue.dat',
         'File where you want to store the auth credentails for later user')
+flags.DEFINE_string(
+    'taskqueue_name',
+    'myqueue',
+    'TaskQueue name')
+flags.DEFINE_string(
+    'task_name',
+    None,
+    'Task name')
 
 # Set up a Flow object to be used if we need to authenticate. This
 # sample uses OAuth 2.0, and we set up the OAuth2WebServerFlow with
@@ -79,7 +91,7 @@ flags.DEFINE_string(
 FLOW = OAuth2WebServerFlow(
     client_id='157776985798.apps.googleusercontent.com',
     client_secret='tlpVCmaS6yLjxnnPu0ARIhNw',
-    scope='https://www.googleapis.com/auth/taskqueue',
+    scope='https://www.googleapis.com/auth/cloud-tasks',
     user_agent='taskqueue-cmdline-sample/1.0')
 
 class GoogleTaskQueueCommandBase(appcommands.Cmd):
@@ -224,10 +236,6 @@ class GoogleTaskQueueCommand(GoogleTaskQueueCommandBase):
 
     def __init__(self, name, flag_values):
         super(GoogleTaskQueueCommand, self).__init__(name, flag_values)
-        flags.DEFINE_string('taskqueue_name',
-                                                'myqueue',
-                                                'TaskQueue name',
-                                                flag_values=flag_values)
 
     def run_with_api_and_flags(self, api, flag_values):
         """Run the command, returning the result.
@@ -247,17 +255,6 @@ class GoogleTaskCommand(GoogleTaskQueueCommandBase):
 
     def __init__(self, name, flag_values, need_task_flag=True):
         super(GoogleTaskCommand, self).__init__(name, flag_values)
-        # Common flags that are shared by all the Task commands.
-        flags.DEFINE_string('taskqueue_name',
-                            'myqueue',
-                            'TaskQueue name',
-                            flag_values=flag_values)
-        # Not all task commands need the task_name flag.
-        if need_task_flag:
-            flags.DEFINE_string('task_name',
-                                None,
-                                'Task name',
-                                flag_values=flag_values)
 
     def run_with_api_and_flags(self, api, flag_values):
         """Run the command, returning the result.
