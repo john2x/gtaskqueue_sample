@@ -28,8 +28,8 @@ import json
 from oauth2client.file import Storage
 from oauth2client.client import OAuth2WebServerFlow
 from gtaskqueue.taskqueue_logger import logger
-from utils import get_env_variable
-from old_run import run
+from gtaskqueue.utils import get_env_variable
+from gtaskqueue.old_run import run
 
 from google.apputils import app
 import gflags as flags

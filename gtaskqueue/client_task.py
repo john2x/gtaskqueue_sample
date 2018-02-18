@@ -25,7 +25,7 @@ import time
 import urllib2
 from apiclient.errors import HttpError
 from gtaskqueue.taskqueue_logger import logger
-from utils import build_cloudtasks_task_name
+from gtaskqueue.utils import build_cloudtasks_task_name
 import gflags as flags
 
 

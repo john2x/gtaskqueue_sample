@@ -26,7 +26,7 @@ from gtaskqueue.taskqueue_cmd_base import GoogleTaskCommand
 
 from google.apputils import app
 from google.apputils import appcommands
-from utils import build_cloudtasks_queue_name, build_cloudtasks_task_name
+from gtaskqueue.utils import build_cloudtasks_queue_name, build_cloudtasks_task_name
 import gflags as flags
 
 FLAGS = flags.FLAGS

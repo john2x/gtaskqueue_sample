@@ -31,7 +31,7 @@ from apiclient.errors import HttpError
 import httplib2
 from oauth2client.file import Storage
 from oauth2client.client import OAuth2WebServerFlow
-from old_run import run
+from gtaskqueue.old_run import run
 
 from google.apputils import app
 from google.apputils import appcommands
