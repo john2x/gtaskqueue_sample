@@ -87,7 +87,7 @@ class LeaseTaskCommand(GoogleTaskCommand):
         parent = build_cloudtasks_task_name(flag_values.project_name, flag_values.project_location, flag_values.taskqueue_name)
         body = {
             'maxTasks': flag_values.num_tasks,
-            'leaseDuration': flag_values.lease_secs,
+            'leaseDuration': int(flag_values.lease_secs),
             'responseView': 'FULL',
         }
         return task_api.lease(parent=parent,

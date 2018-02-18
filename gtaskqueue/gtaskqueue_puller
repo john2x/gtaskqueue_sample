@@ -240,7 +240,7 @@ class TaskQueuePuller(object):
             parent = build_cloudtasks_queue_name(FLAGS.project_name, FLAGS.project_location, FLAGS.taskqueue_name)
             body = {
                 'maxTasks': tasks_to_fetch,
-                'leaseDuration': FLAGS.lease_secs,
+                'leaseDuration': int(FLAGS.lease_secs),
                 'responseView': 'FULL',
             }
             if FLAGS.tag:
