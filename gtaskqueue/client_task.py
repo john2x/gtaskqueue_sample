@@ -315,7 +315,7 @@ class ClientTask(object):
                                               task_id=self.task_id)
             body = {'scheduleTime': self.task_schedule_time}
             delete_request = task_api.projects().locations().queues().tasks().acknowledge(
-                name=FLAGS.project_name,
+                name=name,
                 body=body)
             delete_request.execute()
         except HttpError, http_error:
