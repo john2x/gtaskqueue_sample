@@ -26,7 +26,7 @@ from apiclient.errors import HttpError
 import httplib2
 import json
 from oauth2client.file import Storage
-from oauth2client.client import OAuth2WebServerFlow
+from oauth2client.service_account import ServiceAccountCredentials
 from gtaskqueue.taskqueue_logger import logger
 from gtaskqueue.utils import get_env_variable
 from gtaskqueue.old_run import run
@@ -34,6 +34,7 @@ from gtaskqueue.old_run import run
 from google.apputils import app
 import gflags as flags
 
+SCOPES = ['https://www.googleapis.com/auth/cloud-tasks']
 FLAGS = flags.FLAGS
 flags.DEFINE_string(
         'service_version',
@@ -56,22 +57,9 @@ flags.DEFINE_bool(
         False,
         'Prints the outgoing HTTP request along with headers and body.')
 flags.DEFINE_string(
-        'credentials_file',
-        'taskqueue.dat',
-        'File where you want to store the auth credentails for later user')
-
-# Set up a Flow object to be used if we need to authenticate. This
-# sample uses OAuth 2.0, and we set up the OAuth2WebServerFlow with
-# the information it needs to authenticate. Note that it is called
-# the Web Server Flow, but it can also handle the flow for native
-# applications <http://code.google.com/apis/accounts/docs/OAuth2.html#IA>
-# The client_id client_secret are copied from the Identity tab on
-# the Google APIs Console <http://code.google.com/apis/console>
-FLOW = OAuth2WebServerFlow(
-    client_id=get_env_variable('GOOGLE_CLIENT_ID'),
-    client_secret=get_env_variable('GOOGLE_CLIENT_SECRET'),
-    scope='https://www.googleapis.com/auth/cloud-tasks',
-    user_agent='taskqueue-cmdline-sample/1.0')
+        'service_account_file',
+        'service_account.json',
+        'Service account key file in json format')
 
 
 class TaskQueueClient:
@@ -85,16 +73,8 @@ class TaskQueueClient:
             FLAGS.api_host + 'discovery/v1/apis/{api}/{apiVersion}/rest')
         logger.info(discovery_uri)
         try:
-            # If the Credentials don't exist or are invalid run through the
-            # native clien flow. The Storage object will ensure that if
-            # successful the good Credentials will get written back to a file.
-            # Setting FLAGS.auth_local_webserver to false since we can run our
-            # tool on Virtual Machines and we do not want to run the webserver
-            # on VMs.
-            storage = Storage(FLAGS.credentials_file)
-            credentials = storage.get()
-            if credentials is None or credentials.invalid == True:
-                credentials = run(FLOW, storage)
+            # Load the credentials from the service account credentials json file
+            credentials = ServiceAccountCredentials.from_json_keyfile_name(FLAGS.service_account_file, scopes=SCOPES)
             http = credentials.authorize(self._dump_request_wrapper(
                     httplib2.Http()))
             self.task_api = build('cloudtasks',
